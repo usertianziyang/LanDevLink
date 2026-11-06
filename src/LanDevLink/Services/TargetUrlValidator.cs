@@ -21,7 +21,7 @@ public static class TargetUrlValidator
             throw new ArgumentException("地址格式无效，请输入类似 http://localhost:5173 的地址。", nameof(value));
         }
 
-        if (!uri.IsLoopback)
+        if (!IsAllowedLoopbackHost(uri))
         {
             throw new ArgumentException("为避免成为任意网络代理，只能分享本机 localhost 服务。", nameof(value));
         }
@@ -38,5 +38,11 @@ public static class TargetUrlValidator
 
         return uri;
     }
+
+    public static bool IsAllowedLoopbackHost(Uri uri) =>
+        uri.IsAbsoluteUri &&
+        (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+         uri.Host == "127.0.0.1" || uri.Host == "[::1]" || uri.Host == "::1") &&
+        string.IsNullOrEmpty(uri.UserInfo);
 }
 

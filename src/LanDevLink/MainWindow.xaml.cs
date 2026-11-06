@@ -24,6 +24,11 @@ public partial class MainWindow : Window
             e.Cancel = true;
             _closingAfterStop = true;
             await _viewModel.StopAsync();
+            if (_viewModel.IsActive)
+            {
+                _closingAfterStop = false;
+                return;
+            }
             Close();
             return;
         }
@@ -90,8 +95,16 @@ public partial class MainWindow : Window
         _viewModel.StatusMessage = "链接已复制到剪贴板";
     }
 
+    private void CopyRepairPrompt_Click(object sender, RoutedEventArgs e)
+    {
+        Clipboard.SetText(_viewModel.AiRepairPrompt);
+        _viewModel.StatusMessage = "修复指令已复制到剪贴板";
+    }
+
     private async void StopShare_Click(object sender, RoutedEventArgs e)
     {
+        if (!_viewModel.CanStop) return;
+
         var result = MessageBox.Show(
             this,
             "停止后，当前链接会立即失效。",

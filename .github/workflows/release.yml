@@ -20,6 +20,10 @@ jobs:
         with:
           global-json-file: global.json
 
+      - name: Run integration checks
+        shell: pwsh
+        run: dotnet run --project .\tests\LanDevLink.IntegrationChecks\LanDevLink.IntegrationChecks.csproj -c Release
+
       - name: Publish Windows x64
         shell: pwsh
         run: >-

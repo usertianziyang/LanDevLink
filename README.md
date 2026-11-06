@@ -4,6 +4,8 @@
 
 LanDevLink 是一款面向 Windows 的轻量级局域网开发服务分享工具。它把本机 `localhost` 服务包装成临时、可控、可撤销的访问入口，让同事、测试与产品无需配置环境，即可在同一网络中预览开发成果。
 
+当前版本：**v0.1.1**。版本变化见[中文更新日志](CHANGELOG.md)。
+
 ## 产品界面
 
 ![LanDevLink 分享运行界面](docs/images/lan-dev-link-sharing.png)
@@ -17,6 +19,8 @@ LanDevLink 是一款面向 Windows 的轻量级局域网开发服务分享工具
 - 可选设置访问密码；留空时仍可直接访问
 - 可选设置 15 分钟、30 分钟、1 小时或 2 小时有效期；不限时则持续运行到手动停止
 - 支持 HTTP、WebSocket 与开发服务器热更新流量转发
+- 自动识别页面文本中引用的本机关联服务，并在当前分享会话内转发其 HTTP 与 WebSocket 请求
+- 无法自动处理的地址会显示兼容提示，可复制修复指令交给 AI 编码工具
 - 可检测他人分享链接与本机是否处于同一 IPv4 子网，并探测目标端口是否可连接
 - 显示本机当前活动网络连接、IPv4 地址、子网前缀和网关
 - 显示独立访问设备数量和剩余时间
@@ -31,6 +35,8 @@ LanDevLink 是一款面向 Windows 的轻量级局域网开发服务分享工具
 5. 无法打开别人分享的链接时，点击窗口顶部的“网络诊断”进入诊断界面。
 
 访问设备必须与运行 LanDevLink 的电脑处于同一局域网。首次监听局域网端口时，Windows 可能显示防火墙提示；只需为当前可信的专用网络允许访问。
+
+自动关联服务在启动时检查项目首页及最多 8 个同源引用资源，只接受其中出现的 `localhost`、`127.0.0.1` 和 `::1` HTTP/HTTPS/WS/WSS 字面量地址，每次分享最多 4 个。关联路径只在当前会话有效，运行中新出现的本机端口不会开放。开发构建默认启用，发布构建可设置 `LANDEVLINK_AUTO_SHARE=1` 启用；设置为 `0` 可关闭响应转换，回到单服务分享。
 
 ## 开发
 
@@ -49,6 +55,8 @@ dotnet publish .\src\LanDevLink\LanDevLink.csproj -c Release -r win-x64 --self-c
 
 ## 技术方案
 
+集成检查：`dotnet run --project .\tests\LanDevLink.IntegrationChecks\LanDevLink.IntegrationChecks.csproj`，覆盖关联服务转发、访问控制、活动连接停止、界面状态清理和重新分享。
+
 - .NET 10 + WPF
 - ASP.NET Core Kestrel
 - YARP 反向代理
@@ -59,4 +67,4 @@ dotnet publish .\src\LanDevLink\LanDevLink.csproj -c Release -r win-x64 --self-c
 
 ## 当前边界
 
-当前版本聚焦单个本机服务的局域网分享。每次分享都有随机入口地址，并可选择增加访问密码和有效期；点击“停止分享”或到达有效期后链接立即失效。公网穿透、多项目同时分享、团队账号、访问日志持久化和自动更新尚未实现。便携版不依赖管理员权限或代码签名，但未签名程序仍可能触发 Windows SmartScreen 提示。
+首版自动兼容只改写有限大小的 HTML、JavaScript、CSS、JSON 和 Manifest 文本。动态拼接的地址、Worker、Service Worker、iframe 与严格 CSP 配置可能需要调整项目代码。公网穿透、多项目同时分享、团队账号、访问日志持久化和自动更新尚未实现。便携版不依赖管理员权限或代码签名，但未签名程序仍可能触发 Windows SmartScreen 提示。
